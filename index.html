@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Fichas Técnicas — Teje</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+  :root {
+    --bg:        #F7F6F3;
+    --surface:   #FFFFFF;
+    --border:    #E0DDD8;
+    --text:      #1A1917;
+    --muted:     #7A7672;
+    --accent:    #2D5FA8;
+    --accent-bg: #EBF0FA;
+    --zona-bg:   #F0EEE9;
+    --mono:      'IBM Plex Mono', monospace;
+    --sans:      'IBM Plex Sans', sans-serif;
+    --radius:    6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 40px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--text);
+    color: #fff;
+    padding: 16px 20px 14px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  header .marca {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #aaa;
+  }
+  header h1 {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  /* PANTALLAS */
+  .screen { display: none; padding: 20px; }
+  .screen.active { display: block; }
+
+  /* BÚSQUEDA */
+  .search-wrap {
+    margin-top: 24px;
+  }
+  .search-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .search-row {
+    display: flex;
+    gap: 8px;
+  }
+  input[type="text"] {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 600;
+    padding: 12px 14px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    letter-spacing: 0.04em;
+    -webkit-appearance: none;
+  }
+  input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+  button.btn-buscar {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0 20px;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .recientes-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 28px 0 10px;
+  }
+  .articulo-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .articulo-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.15s;
+  }
+  .articulo-item:active { background: var(--accent-bg); }
+  .art-id {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 52px;
+  }
+  .art-nombre {
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  /* TALLES */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    margin-bottom: 18px;
+    padding: 4px 0;
+  }
+  .back-btn:active { color: var(--accent); }
+
+  .art-header {
+    margin-bottom: 20px;
+  }
+  .art-header .art-code {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1;
+  }
+  .art-header .art-desc {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .talles-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .talles-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .talle-btn {
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    min-width: 60px;
+    text-align: center;
+    transition: all 0.12s;
+  }
+  .talle-btn:active,
+  .talle-btn.selected {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+    color: var(--accent);
+  }
+
+  /* FICHA */
+  .ficha-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ficha-art {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 600;
+  }
+  .ficha-talle-badge {
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+  .ficha-nombre {
+    font-size: 13px;
+    color: var(--muted);
+    margin-left: auto;
+    text-align: right;
+    max-width: 140px;
+    line-height: 1.3;
+  }
+
+  .zona-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .zona-titulo {
+    background: var(--zona-bg);
+    padding: 8px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .zona-body {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dato-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .dato-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .dato-valor {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .dato-valor.mono {
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .medidas-row {
+    display: flex;
+    gap: 16px;
+  }
+  .medida-bloque {
+    flex: 1;
+    background: var(--accent-bg);
+    border-radius: 4px;
+    padding: 8px 12px;
+  }
+  .medida-num {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .medida-unit {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .obs-bloque {
+    background: #FFFBEB;
+    border: 1px solid #F0E68C;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #7A6800;
+    line-height: 1.5;
+  }
+
+  /* LOADING / ERROR */
+  .estado {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .spinner {
+    width: 24px; height: 24px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-msg {
+    background: #FEE2E2;
+    border: 1px solid #FCA5A5;
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    color: #991B1B;
+    font-size: 14px;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="marca">Sasre · Teje</div>
+    <h1>Fichas Técnicas</h1>
+  </div>
+</header>
+
+<!-- PANTALLA 1: BÚSQUEDA -->
+<div id="screen-busqueda" class="screen active">
+  <div class="search-wrap">
+    <div class="search-label">Número de artículo</div>
+    <div class="search-row">
+      <input type="text" id="input-art" placeholder="Ej: 101" inputmode="numeric">
+      <button class="btn-buscar" onclick="buscarArticulo()">Buscar</button>
+    </div>
+    <div id="error-busqueda"></div>
+  </div>
+
+  <div id="lista-wrap" style="display:none">
+    <div class="recientes-label">Artículos</div>
+    <div class="articulo-lista" id="lista-articulos"></div>
+  </div>
+
+  <div id="loading-busqueda" class="estado" style="display:none">
+    <div class="spinner"></div>
+    Buscando...
+  </div>
+</div>
+
+<!-- PANTALLA 2: TALLES -->
+<div id="screen-talles" class="screen">
+  <div class="back-btn" onclick="irA('busqueda')">← Volver</div>
+  <div class="art-header">
+    <div class="art-code" id="talles-art-id"></div>
+    <div class="art-desc" id="talles-art-nombre"></div>
+  </div>
+  <div class="talles-label">Seleccioná un talle</div>
+  <div class="talles-grid" id="talles-grid"></div>
+</div>
+
+<!-- PANTALLA 3: FICHA -->
+<div id="screen-ficha" class="screen">
+  <div class="back-btn" onclick="irA('talles')">← Cambiar talle</div>
+  <div class="ficha-header">
+    <div class="ficha-art" id="ficha-art-id"></div>
+    <div class="ficha-talle-badge" id="ficha-talle"></div>
+    <div class="ficha-nombre" id="ficha-art-nombre"></div>
+  </div>
+  <div id="ficha-zonas"></div>
+  <div id="loading-ficha" class="estado" style="display:none">
+    <div class="spinner"></div>
+    Cargando ficha...
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURACIÓN — reemplazá con tu URL de Apps Script
+// ============================================================
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYJdxESe3anomLZvuyX-g99t6gqhsb6fmdavyDen5XhXwd8euO7eM4xjgVjv5gJeHkRQ/exec";
+
+// ============================================================
+// ESTADO
+// ============================================================
+let todosLosArticulos = [];
+let articuloActual = null;
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', cargarArticulos);
+
+document.getElementById('input-art').addEventListener('keydown', e => {
+  if (e.key === 'Enter') buscarArticulo();
+});
+
+async function cargarArticulos() {
+  try {
+    const data = await api({ action: 'getArticulos' });
+    todosLosArticulos = data;
+  } catch(e) {
+    // silencioso, la búsqueda mostrará error si falla
+  }
+}
+
+// ============================================================
+// NAVEGACIÓN
+// ============================================================
+function irA(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ============================================================
+// PANTALLA 1: BÚSQUEDA
+// ============================================================
+function buscarArticulo() {
+  const q = document.getElementById('input-art').value.trim();
+  if (!q) return;
+
+  const errorEl = document.getElementById('error-busqueda');
+  errorEl.innerHTML = '';
+
+  if (todosLosArticulos.length === 0) {
+    errorEl.innerHTML = '<div class="error-msg">No se pudo conectar al servidor. Verificá la conexión.</div>';
+    return;
+  }
+
+  const resultados = todosLosArticulos.filter(a =>
+    String(a.art_id).includes(q) ||
+    (a.nombre && a.nombre.toLowerCase().includes(q.toLowerCase()))
+  );
+
+  if (resultados.length === 0) {
+    errorEl.innerHTML = '<div class="error-msg">No se encontró el artículo "' + q + '".</div>';
+    document.getElementById('lista-wrap').style.display = 'none';
+    return;
+  }
+
+  if (resultados.length === 1) {
+    seleccionarArticulo(resultados[0]);
+    return;
+  }
+
+  mostrarLista(resultados);
+}
+
+function mostrarLista(articulos) {
+  const lista = document.getElementById('lista-articulos');
+  lista.innerHTML = articulos.map(a => `
+    <div class="articulo-item" onclick="seleccionarArticulo(${JSON.stringify(a).replace(/"/g, '&quot;')})">
+      <div class="art-id">${a.art_id}</div>
+      <div class="art-nombre">${a.nombre || '—'}</div>
+    </div>
+  `).join('');
+  document.getElementById('lista-wrap').style.display = 'block';
+}
+
+async function seleccionarArticulo(art) {
+  articuloActual = art;
+
+  document.getElementById('talles-art-id').textContent = art.art_id;
+  document.getElementById('talles-art-nombre').textContent = art.nombre || '';
+
+  irA('talles');
+
+  const grid = document.getElementById('talles-grid');
+  grid.innerHTML = '<div class="estado"><div class="spinner"></div>Cargando talles...</div>';
+
+  try {
+    const data = await api({ action: 'getTalles', art_id: art.art_id });
+    if (!data.talles || data.talles.length === 0) {
+      grid.innerHTML = '<div class="error-msg">Este artículo no tiene talles cargados.</div>';
+      return;
+    }
+    grid.innerHTML = data.talles.map(t => `
+      <button class="talle-btn" onclick="verFicha('${t}')">${t}</button>
+    `).join('');
+  } catch(e) {
+    grid.innerHTML = '<div class="error-msg">Error al cargar talles: ' + e.message + '</div>';
+  }
+}
+
+// ============================================================
+// PANTALLA 3: FICHA
+// ============================================================
+async function verFicha(talle) {
+  irA('ficha');
+
+  document.getElementById('ficha-art-id').textContent = articuloActual.art_id;
+  document.getElementById('ficha-talle').textContent = talle;
+  document.getElementById('ficha-art-nombre').textContent = articuloActual.nombre || '';
+  document.getElementById('ficha-zonas').innerHTML = '';
+  document.getElementById('loading-ficha').style.display = 'block';
+
+  try {
+    const data = await api({ action: 'getFicha', art_id: articuloActual.art_id, talle });
+    document.getElementById('loading-ficha').style.display = 'none';
+
+    if (!data.zonas || data.zonas.length === 0) {
+      document.getElementById('ficha-zonas').innerHTML = '<div class="error-msg">No hay zonas cargadas para este talle.</div>';
+      return;
+    }
+
+    document.getElementById('ficha-zonas').innerHTML = data.zonas.map(z => renderZona(z)).join('');
+  } catch(e) {
+    document.getElementById('loading-ficha').style.display = 'none';
+    document.getElementById('ficha-zonas').innerHTML = '<div class="error-msg">Error al cargar ficha: ' + e.message + '</div>';
+  }
+}
+
+function renderZona(z) {
+  const hilados = z.hilados ? z.hilados.split('/').map(h => h.trim()).filter(Boolean) : [];
+  const tieneMedidas = z.ancho_cm !== '' || z.largo_cm !== '';
+
+  return `
+    <div class="zona-card">
+      <div class="zona-titulo">${z.zona}</div>
+      <div class="zona-body">
+
+        ${z.tipo_punto ? `
+          <div class="dato-row">
+            <div class="dato-label">Tipo de punto</div>
+            <div class="dato-valor">${z.tipo_punto}</div>
+          </div>
+        ` : ''}
+
+        ${hilados.length > 0 ? `
+          <div class="dato-row">
+            <div class="dato-label">Hilado${hilados.length > 1 ? 's' : ''}</div>
+            ${hilados.map(h => `<div class="dato-valor mono">${h}</div>`).join('')}
+          </div>
+        ` : ''}
+
+        ${tieneMedidas ? `
+          <div class="medidas-row">
+            ${z.ancho_cm !== '' ? `
+              <div class="medida-bloque">
+                <div class="medida-num">${z.ancho_cm}</div>
+                <div class="medida-unit">cm — Ancho</div>
+              </div>
+            ` : ''}
+            ${z.largo_cm !== '' ? `
+              <div class="medida-bloque">
+                <div class="medida-num">${z.largo_cm}</div>
+                <div class="medida-unit">cm — Largo</div>
+              </div>
+            ` : ''}
+          </div>
+        ` : ''}
+
+        ${z.observaciones ? `
+          <div class="obs-bloque">⚠ ${z.observaciones}</div>
+        ` : ''}
+
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// API HELPER
+// ============================================================
+async function api(params) {
+  const url = new URL(SCRIPT_URL);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error('Error HTTP ' + res.status);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+</script>
+</body>
+</html>
